@@ -18,6 +18,8 @@ function query(str) {
 
 function queryArr(str) {
     /**
+     * naming: queryArr instead of queryAll to emphasize that
+     * it conveniently returns proper array
      * @param {string} str
      * @return {Array<DOMElement>}
      */
@@ -352,4 +354,47 @@ dom.table = function (arr, parent) {
         parent.appendChild(table)
     }
     return table
+}
+
+/**
+ * @param {object} i
+ *    fields: {DOMElement} input
+ *            {string} up
+ *            {string} down
+ *            {array} range
+ *            {string} disabledClass
+ */
+dom.boundsChecker = function (i) {
+    const DOMElement = i.input
+    const rangeLow  = Math.min(...i.range)
+    const rangeHigh = Math.max(...i.range)
+    const siblings = dom.siblingSearcher(DOMElement)
+    const up   = siblings( i.up ).classList
+    const down = siblings(i.down).classList
+    const { disabledClass } = i
+    
+    return function (change) {
+        let value = parseInt(DOMElement.value)
+        if (!value) {
+            DOMElement.value = value = rangeLow
+        }
+        let newValue = value + change
+        if (rangeLow <= newValue && newValue <= rangeHigh) {
+            DOMElement.value = newValue
+            checkIfDisabled(newValue)
+        }
+    }
+
+    function checkIfDisabled(newValue) {
+        switch (newValue) {
+            case rangeLow:
+                down.add(disabledClass); break
+            case (rangeLow + 1):
+                down.remove(disabledClass); break
+            case (rangeHigh - 1):
+                up.remove(disabledClass); break
+            case rangeHigh:
+                up.add(disabledClass); break
+        }
+    }
 }
