@@ -1,95 +1,5 @@
 'use strict'
 
-function clearPunctuation (word) {
-    /**
-     * @param  {string} word
-     * @return {string} word
-     */
-    if (is.string(word)) {
-        word = word.replace(/[\n,.?!:;()¿¡"«»\\%—–…]/g, "")
-        // specific line - may not need this
-        word = word.replace(/\`/g, "\'")
-        return word
-    } else {
-        console.log('not a string ' + word)
-    }
-}
-
-function readFileObject (filename) {
-    /**
-     * Use only for objects
-     * @param  {string} filename
-     * @return {object}
-     */
-    let readFile = fs.readFileSync(filename, 'utf8')
-    let parsedFile = JSON.parse(readFile)
-    return parsedFile
-}
-
-function percent (arg1, arg2) {
-    /**
-     * @param {number} arg1
-     * @param {number} arg2
-     * Math.floor may be replaced by alternative way of rounding
-     */
-    return Math.floor((arg1 / arg2) * 100)
-}
-
-/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-                                       IS                                       
- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-const is = {}
-
-is.array = function (i) {
-    return Array.isArray(i)
-}
-
-is.object = function (i) {
-    return i === Object(i) 
-    && Object.prototype.toString.call(i) !== '[object Array]'
-}
-
-is.string = function (i) {
-    return typeof i === 'string'
-}
-
-is.number = function (i) {
-    return typeof i === 'number'
-}
-
-is.numberStr = function (i) {
-    /**
-     * Check if string can be converted to rational or floating-poing number.
-     * @param {string} i
-     * @example true: '23423', '12.564'
-     */
-    return !Number.isNaN(+i)
-}
-
-is.ISODate = function (i) {
-    /**
-     * @param {string} i
-     */
-    if ( is.string(i) && i.length === 10 ) {
-        let /** string */ year =  i.slice(0, 4)
-        let /** string */ month = i.slice(5, 7)
-        let /** string */ day =   i.slice(8, 10)
-        let /** number */ maxDaysInMonth = time.daysCountInMonth({
-            month: month,
-            year: year
-        })
-        
-        if (+month <= 12 && +day <= maxDaysInMonth) {
-            return true
-        }
-    }
-    return false
-}
-
-/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-                                     DOM                                       
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-
 function id(str) {
     /**
      * @param {string} str
@@ -126,6 +36,11 @@ function click(q, func) {
 
 const dom = {}
 
+dom.isObject = function (i) {
+    return i === Object(i)
+        && Object.prototype.toString.call(i) !== '[object Array]'
+}
+
 dom.setIfDefined = function (val, set, pt) {
     if (val != null) {
         set[pt] = val
@@ -160,7 +75,7 @@ dom.render = function (scheme, parent) {
      * If scheme contains multiple first-level elements, 
      * this element will be DOMFragment
      */
-    if (is.string(scheme)) {
+    if (typeof scheme == 'string') {
         /** object */ scheme = dom.decode(scheme)
     }
     // inspired by Tiddlywiki source code — $tw.utils.domMaker
@@ -181,22 +96,22 @@ dom.render = function (scheme, parent) {
 
     function processEl(el) {
         let element
-        if (is.string(el)) {
+        if (typeof el == 'string') {
             element = dom.makeFromStr(el)
         } else
-        if (is.array(el)) {
-            element = dom.make(el[0], el[1])
-        } else {
-            console.log('sodfjosdjfo!!!!!!')
-        }
+            if (Array.isArray(el)) {
+                element = dom.make(el[0], el[1])
+            } else {
+                console.log('sodfjosdjfo!!!!!!')
+            }
         return element
     }
 
     function processCh(ch) {
         ch.forEach(el => {
-            if (is.string(el)) {
+            if (typeof el == 'string') {
                 dom.makeFromStr(el, element)
-            } else if (is.object(el)) {
+            } else if (dom.isObject(el)) {
                 dom.render(el, element)
             }
         })
@@ -227,7 +142,7 @@ dom.make = function (tag, options, parent) {
             console.log(e)
         }
     })
-    
+
     if (parent) {
         parent.appendChild(element)
     }
@@ -237,9 +152,8 @@ dom.make = function (tag, options, parent) {
 dom.makeFromStr = function (str, parent) {
     /**
      * Wrapper around dom.make, which allows input in form of
-     * @param {string} str, which represents DOM element in shortest 
-     * form possible, and 
-     * produces {array} with {string} tag, {object} options 
+     * @param {string} str, which represents DOM element in shortest form possible,
+     * and produces {array} with {string} tag, {object} options 
      * and optional {DOMElement} parent.
      * @returns whatever dom.make returns
      * @todo standalone attributes like disabled
@@ -358,7 +272,7 @@ dom.decode = function decode(i) {
         o = newChildren(blocks)[0]
     }
     return o
-    
+
     function newChildren(blocks) {
         return blocks.map(line => {
             return {
@@ -413,19 +327,19 @@ dom.removeAllChildren = function (el) {
     }
 }
 
-dom.table = function(arr, parent) {
+dom.table = function (arr, parent) {
     let table = document.createElement('table')
     for (let line of arr) {
         let row = table.insertRow()
         for (let i = 0; i < line.length; i += 1) {
             let cell = row.insertCell(i)
-            if (is.string(line[i])) {
+            if (typeof line[i] == 'string') {
                 let /** string */ cellText = line[i]
                 cell.appendChild(
                     document.createTextNode(cellText)
                 )
             }
-            if (is.object(line[i])) {
+            if (dom.isObject(line[i])) {
                 cell.appendChild(
                     dom.render(line[i])
                 )
@@ -438,148 +352,4 @@ dom.table = function(arr, parent) {
         parent.appendChild(table)
     }
     return table
-}
-
-/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-                                      RAND                                      
- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-
-const rand = {
-    arrayEl: {}
-}
-rand.arrayIndex = function (arr) {
-    return Math.floor(Math.random() * arr.length)
-}
-rand.arrayEl.nonMutating = function (arr) {
-  return arr[this.arrayIndex(arr)]
-}
-rand.arrayEl.mutating = function randElCut(arr) {
-  const index = this.arrayIndex(arr)
-  const out = arr[index]
-  arr.splice(index, 1)
-  return out
-}
-rand.objectProperty = function (obj) {
-    return this.arrayEl.nonMutating(Object.keys(obj))
-}
-
-function presetBranch(trunk, branch, value) {
-    if (is.emptyVar(trunk[branch])) {
-        trunk[branch] = value
-    }
-}
-
-/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-                                       TIME                                    
- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-
-const time = {}
-
-time.datesBetween = function (date1, date2) {
-    /**
-     * @param {Date} date1
-     * @param {Date} date2
-     * @return {Array<Date>} all dates between date1 and date2,
-     * including both of them
-     */
-    date1 = time.needDate(date1)
-    date2 = time.needDate(date2)
-    if (this.ISOfyDate(date1) === this.ISOfyDate(date2)) {
-        return [date2]
-    } 
-    if (date1 < date2) {
-        return [date1].concat(
-            this.datesBetween( new Date( this.nextDate(date1) ), date2 )
-        )
-    } 
-    if (date1 < date2) {
-        return this.datesBetween(date2, date1)
-    }
-}
-
-time.ISOfyDate = function (date) {
-    /**
-     * @param {string|Date} date
-     * @return {string}
-     */
-    if (date instanceof Date) {
-        return date.toISOString().slice(0, 10)
-    } else if (is.string(date) && is.ISODate(date) ) {
-        return date
-    } else {
-        throw Error
-    }
-}
-
-time.getAllYearDays = function (year) {
-    /** 
-     * @param  {string} year
-     * @return {Array<Date>}
-     */
-    return this.datesBetween(new Date(`${year}-01-01`), 
-                             new Date(`${year}-12-31`))
-}
-
-time.daysInFebruary = function (year) {
-    /**
-     * @param {string|number} year
-     */
-    year = parseInt(year)
-    if (year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0)) {
-        return 29
-    } else {
-        return 28
-    }
-}
-
-time.daysCountInMonth = function (i) {
-    /** 
-     * Show number of days in specific month.
-     * Leap years complicate things: year property is obligatory
-     * @param {object} i
-     * @return {number}
-     */
-    if (!is.object(i)) {
-        throw Error
-    }
-    let monthsLength = {
-        '01': 31, '02': this.daysInFebruary(i.year),
-        '03': 31, '04': 30,
-        '05': 31, '06': 30,
-        '07': 31, '08': 31,
-        '09': 30, '10': 31,
-        '11': 30, '12': 31
-    }
-    return monthsLength[ i.month ]
-}
-
-time.nextDate =  (date_s) => {
-    /**
-     * @param  {string} date_s formatted as ISO 8601 date: @example '2011-10-31'
-     * @return {string} identically formatted
-     */
-    let /** {Date} */ date = new Date(date_s)
-    date.setDate( date.getDate() + 1 )
-    let /** number */ year = date.getFullYear()
-    let /** string */ month = String( date.getMonth() + 1).padStart(2, '0')
-    let /** string */ day   = String( date.getDate()     ).padStart(2, '0')
-    return `${year}-${month}-${day}`
-}
-
-time.needISO = function (date) {
-    if (date instanceof Date) {
-        return time.ISOfyDate(date)
-    }
-    if (is.ISODate(date)) {
-        return date
-    }
-}
-
-time.needDate = function (date) {
-    if (is.ISODate(date)) {
-        return new Date(date)
-    }
-    if (date instanceof Date) {
-        return date
-    }
 }
