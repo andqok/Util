@@ -398,3 +398,11 @@ dom.boundsChecker = function (i) {
         }
     }
 }
+
+dom.insertAfter = function insertAfter(referenceNode, newNode) {
+    referenceNode.parentNode.insertBefore(newNode, referenceNode.nextSibling);
+}
+
+dom.prependChild = function prependChild(parent, newFirstChild) {
+    parent.insertBefore(newFirstChild, parent.firstChild)
+}

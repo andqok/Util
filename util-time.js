@@ -110,3 +110,105 @@ time.needDate = function (date) {
         return date
     }
 }
+
+time.destructISO = function (date) {
+    //  in: date string like "2018-04-17"
+    // out: date object like obj.year = "2018" obj.month = "04" obj.day = "17"
+    date = time.needISO(date)
+    return {
+        year:  date.slice(0, 4),
+        month: date.slice(5, 7),
+        day:   date.slice(-2),
+    }
+}
+
+time.isLastDayOfMonth = function (date) {
+    let { year, month, day } = time.destructISO(date)
+    let maxDays = time.daysCountInMonth({ year: year, month: month })
+    if (day === maxDays) {
+        return true
+    }
+    return false
+}
+
+/**
+ * @param {array<string>} days
+ * @return {array<number>}
+ */
+time.getUniqueYears = function (days) {
+    let uniqueYears = days.reduce((uniqueYears, date) => {
+        let /** string */ year = +date.slice(0, 4)
+        if (!uniqueYears.includes(year)) {
+            uniqueYears.push(year)
+        }
+        return uniqueYears
+    }, [])
+    return uniqueYears.sort((x, y) => x - y)
+}
+
+/** 
+ * which — 'first' or 'last' (or neither)
+ * @returns {boolean}
+ */
+time.isDayOfWeek = function (date, which) {
+    let weekDay = (new Date(date)).getDay()
+    let whichNum = {
+        first: 0,
+        last: 6
+    }[which]
+    if (weekDay === whichNum) {
+        return true
+    }
+    return false
+}
+
+/**
+ * @param {string|Date} date
+ * @return {number} res
+ */
+time.getWeekNumber = function (date) {
+    if (typeof date == 'string') {
+        date = new Date(date)
+    }
+    var d = new Date(Date.UTC(
+        date.getFullYear(),
+        date.getMonth(),
+        date.getDate()))
+    var dayNum = d.getUTCDay() || 7
+    d.setUTCDate(d.getUTCDate() + 4 - dayNum)
+    var yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1))
+    let res = Math.ceil((((d - yearStart) / 86400000) + 1) / 7)
+    if (res > 50 && date.getMonth() === 0) {
+        return 0
+    }
+    if (date.getMonth() === 11 && res === 1) {
+        return 53
+    }
+    return res
+}
+
+/**
+ * First or last (or neither) week of month
+ * @param {string} date ISO formatted
+ */
+time.isWeekOfMonth = function (date, which) {
+    date = time.needISO(date)
+    let referenceDate = date.slice(0, 8) + {
+        first: '01',
+        last: time.daysCountInMonth({
+            month: date.slice(5, 7),
+            year: date.slice(0, 4)
+        })
+    }[which]
+    
+    /**
+     * If week number of first date equals
+     * week number of @param date, first week is true
+     */
+    let week = getWeekNumber(date)
+    let referenceWeek = getWeekNumber(referenceDate)
+    if (week === referenceWeek) {
+        return true
+    }
+    return false
+}
