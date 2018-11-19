@@ -18,3 +18,8 @@ safelySet.array = function (tree, newBranch, item) {
     }
 }
 
+safelySet.object = function (tree, newBranch) {
+    if (!tree[newBranch]) {
+        tree[newBranch] = {}
+    }
+}
