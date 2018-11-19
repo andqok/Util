@@ -9,7 +9,13 @@ svg.polyPainter = function (style, parent, points) {
     }, [])
     let styleStr = styleArr.join(';')
     
-    return function (points) {
+    if (points) {
+        return thePointsFunction(points)
+    } else {
+        return thePointsFunction
+    }
+    
+    function thePointsFunction(points) {
         svg.element('polyline', {
             points: points,
             style: styleStr
@@ -41,4 +47,15 @@ svg.attr = function attr(el, obj) {
     for (let attribute in obj) {
         el.setAttributeNS(null, attribute, obj[attribute])
     }
+}
+
+svg.text = function (i, parent) {
+    const { text, x, y } = i
+    const el = svg.element('text', {
+        x: x,
+        y: y
+    }, parent)
+    el.appendChild(
+        document.createTextNode(text)
+    )
 }

@@ -31,7 +31,7 @@ time.ISOfyDate = function (date) {
      */
     if (date instanceof Date) {
         return date.toISOString().slice(0, 10)
-    } else if (is.string(date) && is.ISODate(date)) {
+    } else if (typeof date == 'string' && is.ISODate(date)) {
         return date
     } else {
         throw Error
@@ -66,7 +66,7 @@ time.daysCountInMonth = function (i) {
      * @param {object} i
      * @return {number}
      */
-    if (!is.object(i)) {
+    if (!(i == Object(i))) {
         throw Error
     }
     let monthsLength = {
@@ -93,17 +93,35 @@ time.nextDate = (date_s) => {
     return `${year}-${month}-${day}`
 }
 
+time.isISODate = function (i) {
+    /**
+     * @param {string} i
+     */
+    if (typeof i == 'string' && i.length === 10) {
+        const {year, month, day} = time.destructISO(i)
+        let /** number */ maxDaysInMonth = time.daysCountInMonth({
+            month: month,
+            year: year
+        })
+
+        if (+month <= 12 && +day <= maxDaysInMonth) {
+            return true
+        }
+    }
+    return false
+}
+
 time.needISO = function (date) {
     if (date instanceof Date) {
         return time.ISOfyDate(date)
     }
-    if (is.ISODate(date)) {
+    if (time.isISODate(date)) {
         return date
     }
 }
 
 time.needDate = function (date) {
-    if (is.ISODate(date)) {
+    if (time.isISODate(date)) {
         return new Date(date)
     }
     if (date instanceof Date) {
@@ -114,7 +132,7 @@ time.needDate = function (date) {
 time.destructISO = function (date) {
     //  in: date string like "2018-04-17"
     // out: date object like obj.year = "2018" obj.month = "04" obj.day = "17"
-    date = time.needISO(date)
+    //date = time.needISO(date)
     return {
         year:  date.slice(0, 4),
         month: date.slice(5, 7),

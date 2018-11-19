@@ -7,16 +7,16 @@ rand.arrayIndex = function (arr) {
     return Math.floor(Math.random() * arr.length)
 }
 rand.arrayEl.nonMutating = function (arr) {
-  return arr[this.arrayIndex(arr)]
+  return arr[rand.arrayIndex(arr)]
 }
 rand.arrayEl.mutating = function randElCut(arr) {
-  const index = this.arrayIndex(arr)
+  const index = rand.arrayIndex(arr)
   const out = arr[index]
   arr.splice(index, 1)
   return out
 }
 rand.objectProperty = function (obj) {
-    return this.arrayEl.nonMutating(Object.keys(obj))
+    return rand.arrayEl.nonMutating(Object.keys(obj))
 }
 
 function presetBranch(trunk, branch, value) {
