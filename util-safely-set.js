@@ -12,7 +12,9 @@ safelySet.number = function (tree, newBranch, number) {
 
 safelySet.array = function (tree, newBranch, item) {
     if (!tree.hasOwnProperty(newBranch)) {
-        
+        tree[newBranch] = [item]
+    } else {
+        tree[newBranch].push(item)
     }
 }
 
