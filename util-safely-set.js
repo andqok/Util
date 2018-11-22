@@ -1,6 +1,8 @@
 'use strict'
 
-const safelySet = {}
+const safelySet = {
+    multiple: {}
+}
 
 safelySet.number = function (tree, newBranch, number) {
     if (!tree.hasOwnProperty(newBranch)) {
@@ -23,3 +25,15 @@ safelySet.object = function (tree, newBranch) {
         tree[newBranch] = {}
     }
 }
+
+safelySet.multipleThings = function (what) {
+    return function(...args) {
+        for (let arg of args) {
+            safelySet[what](...arg)
+        }
+    }
+}
+
+safelySet.multiple.objects = safelySet.multipleThings('object')
+safelySet.multiple.numbers = safelySet.multipleThings('number')
+safelySet.multiple.arrays  = safelySet.multipleThings('array')
