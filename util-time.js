@@ -2,7 +2,7 @@
 
 const time = {}
 
-time.monthList = [ 
+time.monthList = [
     '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12'
 ]
 
@@ -25,6 +25,7 @@ time.datesBetween = function (date1, date2) {
         return [date2]
     }
     if (date1 < date2) {
+        console.count()
         return [date1].concat(
             this.datesBetween(new Date(this.nextDate(date1)), date2)
         )
@@ -34,6 +35,13 @@ time.datesBetween = function (date1, date2) {
     }
 }
 
+time.countDaysBetween = function (date1, date2) {
+    let inMilliseconds = Math.abs(
+        time.needDate(date2) - time.needDate(date1)
+    )
+    return Math.round( inMilliseconds / 86400000 )
+}
+
 time.ISOfyDate = function (date) {
     /**
      * @param {string|Date} date
@@ -41,7 +49,7 @@ time.ISOfyDate = function (date) {
      */
     if (date instanceof Date) {
         return date.toISOString().slice(0, 10)
-    } else if (typeof date == 'string' && is.ISODate(date)) {
+    } else if (typeof date == 'string' && time.isISODate(date)) {
         return date
     } else {
         throw Error
@@ -49,13 +57,15 @@ time.ISOfyDate = function (date) {
 }
 
 time.getAllYearDays = function (year) {
-    /** 
+    /**
      * @param  {string|number} year
      * @return {Array<Date>}
      */
     return this.datesBetween(new Date(`${year}-01-01`),
         new Date(`${year}-12-31`))
 }
+
+time.getAllYearDates = time.getAllYearDays
 
 time.daysInFebruary = function (year) {
     /**
@@ -70,7 +80,7 @@ time.daysInFebruary = function (year) {
 }
 
 time.daysCountInMonth = function (i) {
-    /** 
+    /**
      * Show number of days in specific month.
      * Leap years complicate things: year property is obligatory
      * @param {object} i
@@ -159,6 +169,8 @@ time.isLastDayOfMonth = function (date) {
     return false
 }
 
+time.isLastDateOfMonth = time.isLastDayOfMonth
+
 /**
  * @param {array<string>} days
  * @return {array<number>}
@@ -174,7 +186,7 @@ time.getUniqueYears = function (days) {
     return uniqueYears.sort((x, y) => x - y)
 }
 
-/** 
+/**
  * which — 'first' or 'last' (or neither)
  * @returns {boolean}
  */
@@ -189,6 +201,8 @@ time.isDayOfWeek = function (date, which) {
     }
     return false
 }
+
+time.isDateOfWeek = time.isDayOfWeek
 
 /**
  * @param {string|Date} date
@@ -228,7 +242,7 @@ time.isWeekOfMonth = function (date, which) {
             year: date.slice(0, 4)
         })
     }[which]
-    
+
     /**
      * If week number of first date equals
      * week number of @param date, first week is true

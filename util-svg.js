@@ -53,7 +53,8 @@ svg.text = function (i, parent) {
     const { text, x, y } = i
     const el = svg.element('text', {
         x: x,
-        y: y
+        y: y,
+        class: i.class,
     }, parent)
     el.appendChild(
         document.createTextNode(text)

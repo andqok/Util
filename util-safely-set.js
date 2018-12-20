@@ -8,7 +8,9 @@ safelySet.number = function (tree, newBranch, number) {
     if (!tree.hasOwnProperty(newBranch)) {
         tree[newBranch] = number
     } else {
-        tree[newBranch] += number
+        /** not always it should be toFixed... */
+        let newNumber = +((tree[newBranch] + number).toFixed(1))
+        tree[newBranch] = newNumber
     }
 }
 
