@@ -69,12 +69,12 @@ dom.isNode = function (i) {
 
 dom.render = function (scheme, parent) {
     /**
-     * @param {object|string} scheme 
-     * @param {DOMElement} [parent] to which elements from scheme 
+     * @param {object|string} scheme
+     * @param {DOMElement} [parent] to which elements from scheme
      * will be appended.
-     * @return {DOMElement} element, which has been appended to parent 
+     * @return {DOMElement} element, which has been appended to parent
      * (if parent specified)
-     * If scheme contains multiple first-level elements, 
+     * If scheme contains multiple first-level elements,
      * this element will be DOMFragment
      */
     if (typeof scheme == 'string') {
@@ -155,7 +155,7 @@ dom.makeFromStr = function (str, parent) {
     /**
      * Wrapper around dom.make, which allows input in form of
      * @param {string} str, which represents DOM element in shortest form possible,
-     * and produces {array} with {string} tag, {object} options 
+     * and produces {array} with {string} tag, {object} options
      * and optional {DOMElement} parent.
      * @returns whatever dom.make returns
      * @todo standalone attributes like disabled
@@ -194,7 +194,7 @@ dom.makeFromStr = function (str, parent) {
      */
     for (let i in tags) { tags[i] = tags[i].split(' ').reverse() }
     let /** string */ tag = parseTag()
-    /** 
+    /**
      * options keys are tag attributes with
      * special "text" key — node's textContent
      */
@@ -261,7 +261,16 @@ dom.decode = function decode(i) {
      * @return {object}
      */
 
-    i /** array */ = i.trim().split('\n')
+    i /** array */ = i.split('\n').filter(str => str.trim().length > 0)
+    /** Clear indentation */
+    let indent = (i[0] || i[1]).split('').reduce((indent, char) => {
+        if (char === ' ') {
+            return indent + 1
+        } else {
+            return indent
+        }
+    }, 0)
+    i = i.map(line => line.slice(indent, line.length))
     let o = {
         ch: []
     }
@@ -372,7 +381,7 @@ dom.boundsChecker = function (i) {
     const up   = siblings( i.up ).classList
     const down = siblings(i.down).classList
     const { disabledClass } = i
-    
+
     return function (change) {
         let value = parseInt(DOMElement.value)
         if (!value) {

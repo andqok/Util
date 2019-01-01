@@ -25,7 +25,6 @@ time.datesBetween = function (date1, date2) {
         return [date2]
     }
     if (date1 < date2) {
-        console.count()
         return [date1].concat(
             this.datesBetween(new Date(this.nextDate(date1)), date2)
         )
