@@ -263,14 +263,9 @@ dom.decode = function decode(i) {
 
     i /** array */ = i.split('\n').filter(str => str.trim().length > 0)
     /** Clear indentation */
-    let indent = (i[0] || i[1]).split('').reduce((indent, char) => {
-        if (char === ' ') {
-            return indent + 1
-        } else {
-            return indent
-        }
-    }, 0)
+    let indent = i[0].length - i[0].trimStart().length
     i = i.map(line => line.slice(indent, line.length))
+
     let o = {
         ch: []
     }
