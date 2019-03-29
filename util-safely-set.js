@@ -22,11 +22,24 @@ safelySet.array = function (tree, newBranch, item) {
     }
 }
 
-safelySet.object = function (tree, newBranch) {
-    if (!tree[newBranch]) {
-        tree[newBranch] = {}
+safelySet.object = (tree, ...newBranches) => {
+    if (typeof tree === 'undefined') {
+      throw new Error('Tree cannot be undefined')
     }
-}
+    innerSelf(tree, newBranches)
+    function innerSelf(tree, newBranches) {
+      let branch = newBranches.shift()
+      if (branch) {
+        if (!tree[branch]) {
+          tree[branch] = {}
+        }
+        innerSelf(tree[branch], newBranches)
+      }
+      else {
+        return true
+      }
+    }
+  }
 
 safelySet.multipleThings = function (what) {
     return function(...args) {

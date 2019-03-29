@@ -8,10 +8,10 @@ const chartWrapper = {}
  *                       'valueAscending'|'valueDescending'|<array>)
  */
 
-chartWrapper.barChart = function (fn, dataObj, options) {
+chartWrapper.barChart = function (dataObj, options) {
     let orderLevel1 = orderThings('level1', dataObj)
     return orderLevel1.reduce((result, key) => {
-        let obj = dataObj[key] || {}
+        let obj = dataObj[key] || 0//{}
         if (!options.stacked) {
             result.push([ key, obj ])
         } else {

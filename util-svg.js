@@ -8,13 +8,13 @@ svg.polyPainter = function (style, parent, points) {
         return styleArr
     }, [])
     let styleStr = styleArr.join(';')
-    
+
     if (points) {
         return thePointsFunction(points)
     } else {
         return thePointsFunction
     }
-    
+
     function thePointsFunction(points) {
         svg.element('polyline', {
             points: points,
@@ -43,7 +43,7 @@ svg.attr = function attr(el, obj) {
     /**
      * Helper to bulk add add attributes to element
      */
-    
+
     for (let attribute in obj) {
         el.setAttributeNS(null, attribute, obj[attribute])
     }
