@@ -1,56 +1,109 @@
-'use strict'
+function safelySetNumber (tree, ...branches) {
+  const num = branches.pop()
 
-const safelySet = {
-    multiple: {}
+  return innerSelf(tree, ...branches)
+
+  function innerSelf(tree, ...branches) {
+    const branch = branches.shift()
+    if (branch) {
+      const currentValue = tree[branch]
+      , isObj = Object(currentValue) === currentValue
+      , isNum = typeof currentValue === 'number'
+      , isUndef = typeof currentValue === 'undefined'
+      if (isObj) tree[branch] = innerSelf(tree[branch], ...branches)
+      if (isNum) tree[branch] = currentValue + num
+      if (isUndef) tree[branch] = innerSelf({}, ...branches)
+      return tree
+    } else {
+      return num
+    }
+  }
 }
 
-safelySet.number = function (tree, newBranch, number) {
-    if (!tree.hasOwnProperty(newBranch)) {
-        tree[newBranch] = number
+function safelySetArray (tree, ...newBranches) {
+  const value = newBranches.pop()
+  , isObj = Object(tree) !== tree
+  , isUndef = typeof tree == 'undefined'
+  , isValidFunc = el => typeof el === 'string' || Number.isFinite(el)
+  , isEachValid = newBranches.every(isValidFunc)
+  if (isObj) { throw new Error('Tree is not an object.') }
+  if (isUndef) { throw new Error('Tree cannot be undefined or null.') }
+  if (!isEachValid) {
+    throw new Error('Not all branches are valid object properties.')
+  }
+  return innerSelf(tree, newBranches)
+
+  function innerSelf(tree, newBranches) {
+    const branch = newBranches.shift()
+    if (branch) {
+      if (!tree[branch]) tree[branch] = {}
+      if (Array.isArray(tree[branch])) { 
+        tree[branch].push(value)
+        return tree
+      }
+      tree[branch] = innerSelf(tree[branch], newBranches)
+      return tree
     } else {
-        /** not always it should be toFixed... */
-        let newNumber = +((tree[newBranch] + number).toFixed(1))
-        tree[newBranch] = newNumber
+      return [value]
     }
+  }
 }
 
-safelySet.array = function (tree, newBranch, item) {
-    if (!tree.hasOwnProperty(newBranch)) {
-        tree[newBranch] = [item]
+function safelySetArrayUnique (tree, ...newBranches) {
+  const value = newBranches.pop()
+  , isObj = Object(tree) !== tree
+  , isUndef = typeof tree == 'undefined'
+  , isValidFunc = el => typeof el === 'string' || Number.isFinite(el)
+  , isEachValid = newBranches.every(isValidFunc)
+  if (isObj) { throw new Error('Tree is not an object.') }
+  if (isUndef) { throw new Error('Tree cannot be undefined or null.') }
+  if (!isEachValid) {
+    throw new Error('Not all branches are valid object properties.')
+  }
+  return innerSelf(tree, newBranches)
+
+  function innerSelf(tree, newBranches) {
+    const branch = newBranches.shift()
+    if (branch) {
+      if (!tree[branch]) tree[branch] = {}
+      if (Array.isArray(tree[branch])) { 
+        if (!tree[branch].includes(value)) tree[branch].push(value)
+        return tree
+      }
+      tree[branch] = innerSelf(tree[branch], newBranches)
+      return tree
     } else {
-        tree[newBranch].push(item)
+      return [value]
     }
+  }
 }
 
 function safelySetObject (tree, ...newBranches) {
-    if (typeof tree === 'undefined') {
-      throw new Error('Tree cannot be undefined')
-    }
-    innerSelf(tree, newBranches)
-    return tree
+  if (typeof tree == 'undefined') {
+    throw new Error('Tree cannot be undefined or null.')
+  }
+  if (Object(tree) !== tree) {
+    throw new Error('Tree is not an object.')
+  }
+  const isEachValid = newBranches.every(el => {
+    return typeof el === 'string' || Number.isFinite(el)
+  })
+  if (!isEachValid) {
+    throw new Error('Not all branches are valid object properties.')
+  }
+  innerSelf(tree, newBranches)
+  return tree
 
-    function innerSelf(tree, newBranches) {
-      const branch = newBranches.shift()
-      if (branch) {
-        if (!tree[branch]) {
-          tree[branch] = {}
-        }
-        innerSelf(tree[branch], newBranches)
+  function innerSelf(tree, newBranches) {
+    const branch = newBranches.shift()
+    if (branch) {
+      if (!tree[branch]) {
+        tree[branch] = {}
       }
-      else {
-        return true
-      }
+      innerSelf(tree[branch], newBranches)
     }
-}
-
-safelySet.multipleThings = function (what) {
-    return function(...args) {
-        for (let arg of args) {
-            safelySet[what](...arg)
-        }
+    else {
+      return true
     }
+  }
 }
-
-safelySet.multiple.objects = safelySet.multipleThings('object')
-safelySet.multiple.numbers = safelySet.multipleThings('number')
-safelySet.multiple.arrays  = safelySet.multipleThings('array')
