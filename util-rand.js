@@ -28,4 +28,4 @@ rand.shuffleArray = function shuffleArray(arr) {
       arr[j]  = tmp
     }
     return arr
-  }
+}
