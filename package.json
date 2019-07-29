@@ -1,0 +1,19 @@
+{
+  "name": "andqok-util",
+  "version": "1.0.0",
+  "description": "Vanilla coding always requires low-level code to be abstracted away.\r Examples:",
+  "main": "LoopEnhancedObject.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/andqok/Util.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/andqok/Util/issues"
+  },
+  "homepage": "https://github.com/andqok/Util#readme"
+}

@@ -1,0 +1,77 @@
+<!doctype HTML>
+<html>
+
+<head>
+  <script>
+    const ordinaryKeys = 'q w e r t y u i o p [ ] \' ; l k j h g f d s a z x c v b n m , . /'.split(' ')
+    const ignore = ['WheelDown', 'WheelUp']
+
+    const bindings = {
+      otherApps: {
+        altBindings: 'z Enter c r w'.split(' '),
+        ctrlBindings: 'n u m o s z i y x c v f h / a d ` b j p t g k Enter [ ] w'.split(' '),
+        ctrlShift: 'w n s p , k Enter [ ] o m l e f g d x h j u v `'.split(' '),
+        altShift: 'a i f'.split(' '),
+      },
+      usedByAHK: {},
+      free: {
+        altBindings:  [],
+        altShift:     [],
+        ctrlShift:    [],
+        altShift:     []
+      }
+    }
+    var openFile = function (event) {
+      var input = event.target;
+
+      var reader = new FileReader();
+      reader.onload = function () {
+        var text = reader.result//.split('\n');
+        var node = document.getElementById('output');
+        node.innerText = text;
+
+        //bindings.usedByAHK.ctrlBindings  = text.match(/\^(.*?)::/g)
+        bindings.usedByAHK.tabToExpand   = text.match(/::(.*?)::/g)
+        bindings.usedByAHK.instantExpand = text.match(/:c\*:(.*?)[\n\r]/g)
+        bindings.usedByAHK.altShift      = text.match(/[\n\r]!+(.*?)::/g).map(getKey)
+        bindings.usedByAHK.ctrlShift     = text.match(/\^\+(.*?)::/g).map(getKey)
+        bindings.usedByAHK.altShift      = text.match(/!\+(.*?)::/g).map(getKey)
+        bindings.usedByAHK.altBindings   = text.match(/!(.*?)::/g).filter(el => {
+          var notThis = { '!+': true, '!^': true, '!^+': true }
+          return !notThis[el.slice(0, 2)] && !notThis[el.slice(0, 3)]
+        }).map(el => el.slice(1, 2))
+
+        ordinaryKeys.forEach(key => {
+          ['altBindings', 'altShift', 'ctrlShift'].forEach(bindingType => {
+            if (!bindings.usedByAHK[bindingType].includes(key) &&
+                !bindings.otherApps[bindingType].includes(key) &&
+                !ignore.includes(key)) {
+                 bindings.free[bindingType].push(key)
+            }
+          })
+          
+        })
+        console.log(bindings)
+        console.log(bindings.free)
+      };
+      reader.readAsText(input.files[0]);
+    };
+    function getKey (el) {
+      return el.slice(2, el.length - 2)
+    }
+    function maintenant (el) {
+
+    }
+
+  </script>
+</head>
+
+<body>
+  <input type='file' accept='text/plain' onchange='openFile(event)'>
+  <br>
+  <div id='output'>
+    ...
+  </div>
+</body>
+
+</html>

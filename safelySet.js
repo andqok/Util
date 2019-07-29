@@ -1,6 +1,5 @@
 function safelySetNumber (tree, ...branches) {
   const num = branches.pop()
-
   return innerSelf(tree, ...branches)
 
   function innerSelf(tree, ...branches) {
@@ -79,16 +78,13 @@ function safelySetArrayUnique (tree, ...newBranches) {
 }
 
 function safelySetObject (tree, ...newBranches) {
-  if (typeof tree == 'undefined') {
-    throw new Error('Tree cannot be undefined or null.')
-  }
-  if (Object(tree) !== tree) {
-    throw new Error('Tree is not an object.')
-  }
-  const isEachValid = newBranches.every(el => {
-    return typeof el === 'string' || Number.isFinite(el)
-  })
-  if (!isEachValid) {
+  const isUndef = typeof tree == 'undefined'
+  , isObj = Object(tree) !== tree
+  , isValidFunc = newBranches.every(isValidFunc)
+  , isValid = newBranches.every(isValidFunc)
+  if (isUndef) { throw new Error('Tree cannot be undefined or null.') }
+  if (isObj) { throw new Error('Tree is not an object.') }
+  if (!isValid) {
     throw new Error('Not all branches are valid object properties.')
   }
   innerSelf(tree, newBranches)
